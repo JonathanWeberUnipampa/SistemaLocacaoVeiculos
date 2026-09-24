@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 
 public class TelaPrincipal extends JFrame {
     private final JTextField campoNome;
+    private final String perfil;
 
     public TelaPrincipal() {
         setTitle("Sistema de Locação de Veículos");
@@ -22,7 +23,31 @@ public class TelaPrincipal extends JFrame {
         setLocationRelativeTo(null);
 
         campoNome = new JTextField(20);
+        perfil = selecionarPerfil();
         setContentPane(criarTelaLogin());
+    }
+
+    private String selecionarPerfil() {
+        String[] opcoesPerfil = {"Cliente", "Gerente"};
+        int perfilSelecionado = JOptionPane.showOptionDialog(
+                this,
+                "Você está entrando como cliente ou gerente?",
+                "Tipo de usuário",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opcoesPerfil,
+                opcoesPerfil[0]);
+
+        if (perfilSelecionado == JOptionPane.CLOSED_OPTION) {
+            return null;
+        }
+
+        return opcoesPerfil[perfilSelecionado];
+    }
+
+    public boolean temPerfilSelecionado() {
+        return perfil != null;
     }
 
     private JPanel criarTelaLogin() {
@@ -65,18 +90,17 @@ public class TelaPrincipal extends JFrame {
         if (nome.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Informe o nome do cliente para entrar.",
+                    "Informe o nome do usuário para entrar.",
                     "Nome obrigatório",
                     JOptionPane.WARNING_MESSAGE);
             campoNome.requestFocusInWindow();
             return;
         }
 
-        JPanel painelInicial = new JPanel(new BorderLayout());
-        painelInicial.add(new JLabel("Bem-vindo(a), " + nome + "!", JLabel.CENTER), BorderLayout.CENTER);
-        setContentPane(painelInicial);
-        revalidate();
-        repaint();
+        InterfaceVeiculo interfaceVeiculo = new InterfaceVeiculo(nome, perfil);
+        interfaceVeiculo.setVisible(true);
+        dispose();
     }
 
 }
+
