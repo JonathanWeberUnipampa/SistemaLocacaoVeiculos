@@ -3,7 +3,7 @@ package model;
 import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 
-public class Locacao {
+public class  Locacao {
 
     private Long id;
 
