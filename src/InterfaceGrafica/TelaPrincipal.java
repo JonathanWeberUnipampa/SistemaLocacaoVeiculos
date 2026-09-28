@@ -1,49 +1,31 @@
 package InterfaceGrafica;
 
-import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JOptionPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JComboBox;
+import javax.swing.JTextField;
 
 public class TelaPrincipal extends JFrame {
-    private final JTextField campoNome;
-    private final String perfil;
+    private final JTextField campoUsuario = new JTextField(20);
+    private final JPasswordField campoSenha = new JPasswordField(20);
+    private final JComboBox<String> comboPerfil = new JComboBox<>(new String[]{"Cliente", "Gerente"});
+    private final String perfil = "Cliente";
 
     public TelaPrincipal() {
         setTitle("Sistema de Locação de Veículos");
-        setSize(800, 600);
+        setSize(460, 330);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        campoNome = new JTextField(20);
-        perfil = selecionarPerfil();
         setContentPane(criarTelaLogin());
-    }
-
-    private String selecionarPerfil() {
-        String[] opcoesPerfil = {"Cliente", "Gerente"};
-        int perfilSelecionado = JOptionPane.showOptionDialog(
-                this,
-                "Você está entrando como cliente ou gerente?",
-                "Tipo de usuário",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                opcoesPerfil,
-                opcoesPerfil[0]);
-
-        if (perfilSelecionado == JOptionPane.CLOSED_OPTION) {
-            return null;
-        }
-
-        return opcoesPerfil[perfilSelecionado];
     }
 
     public boolean temPerfilSelecionado() {
@@ -58,7 +40,7 @@ public class TelaPrincipal extends JFrame {
         constraints.insets = new Insets(8, 8, 8, 8);
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel titulo = new JLabel("Login do cliente");
+        JLabel titulo = new JLabel("Acesso ao sistema");
         titulo.setHorizontalAlignment(JLabel.CENTER);
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -68,36 +50,50 @@ public class TelaPrincipal extends JFrame {
         constraints.gridwidth = 1;
         constraints.gridx = 0;
         constraints.gridy = 1;
-        painel.add(new JLabel("Nome:"), constraints);
+        painel.add(new JLabel("Usuario:"), constraints);
 
         constraints.gridx = 1;
-        painel.add(campoNome, constraints);
+        painel.add(campoUsuario, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        painel.add(new JLabel("Senha:"), constraints);
+
+        constraints.gridx = 1;
+        painel.add(campoSenha, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        painel.add(new JLabel("Perfil:"), constraints);
+
+        constraints.gridx = 1;
+        painel.add(comboPerfil, constraints);
 
         JButton botaoEntrar = new JButton("Entrar");
         botaoEntrar.addActionListener(event -> entrar());
-        campoNome.addActionListener(event -> entrar());
+        campoUsuario.addActionListener(event -> entrar());
 
         constraints.gridx = 1;
-        constraints.gridy = 2;
+        constraints.gridy = 4;
         painel.add(botaoEntrar, constraints);
 
         return painel;
     }
 
     private void entrar() {
-        String nome = campoNome.getText().trim();
+        String nome = campoUsuario.getText().trim();
 
         if (nome.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
-                    "Informe o nome do usuário para entrar.",
+                    "Informe o nome do usuario para entrar.",
                     "Nome obrigatório",
                     JOptionPane.WARNING_MESSAGE);
-            campoNome.requestFocusInWindow();
+            campoUsuario.requestFocusInWindow();
             return;
         }
 
-        InterfaceVeiculo interfaceVeiculo = new InterfaceVeiculo(nome, perfil);
+        InterfaceVeiculo interfaceVeiculo = new InterfaceVeiculo(nome, (String) comboPerfil.getSelectedItem());
         interfaceVeiculo.setVisible(true);
         dispose();
     }
