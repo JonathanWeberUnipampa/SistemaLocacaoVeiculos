@@ -7,6 +7,7 @@ public class GerenteCadastrado {
     public static void adicionarGerente(GerenteCadastrado gerente) {
         gerentes.add(gerente);
     }
+
     public static boolean verificarLogin(String loginDigitado, String senhaDigitada) {
         for (GerenteCadastrado gerente : gerentes) {
             if (gerente.getLogin().equals(loginDigitado) && gerente.getsenha().equals(senhaDigitada)) {

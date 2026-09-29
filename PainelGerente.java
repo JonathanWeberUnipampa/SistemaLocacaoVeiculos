@@ -2,11 +2,12 @@ package SISTEMACADASTRO;
 import java.util.Scanner;
 
 public class PainelGerente {
-    public static void iniciarG() {
+    public static GerenteCadastrado iniciarG() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Para prosseguir digite a chave de acesso:");
         String KeyDigitada = scanner.nextLine();
         boolean permitirAcesso = Gerente.verificarKey(KeyDigitada);
+        GerenteCadastrado gerenteLogado = null;
         if (permitirAcesso) {
             int escolhaGerente;
             do {
@@ -24,7 +25,7 @@ public class PainelGerente {
                         System.out.println("Senha: ");
                         String senhaDigitada = scanner.nextLine();
 
-                        GerenteCadastrado gerenteLogado = GerenteCadastrado.buscarGerente(loginDigitado, senhaDigitada);
+                        gerenteLogado = GerenteCadastrado.buscarGerente(loginDigitado, senhaDigitada);
                         if (gerenteLogado != null) {
                             System.out.println("Login Realizado com sucesso");
                             System.out.println("Bem-Vindo a nossa plataforma " + gerenteLogado.getnome());
@@ -54,6 +55,6 @@ public class PainelGerente {
                         break;
                 }
             } while (escolhaGerente != 3);
-        }
+        }return gerenteLogado;
     }
 }

@@ -89,6 +89,8 @@ public class UsuarioCadastrado {
     public void setlogin(String login){this.login = login;}
 
     public String getsenha(){return senha;}
-    public void setsenha(){this.senha = senha;}
+    public void setsenha(String senha){
+        this.senha = senha;
+    }
 
 }

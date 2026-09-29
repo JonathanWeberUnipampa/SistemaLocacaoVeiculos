@@ -3,7 +3,7 @@ package SISTEMACADASTRO;
 import java.util.Scanner;
 
 public class PainelCadastrado {
-    public static void iniciarU(){
+    public static UsuarioCadastrado iniciarU(){
     Scanner scanner = new Scanner (System.in);
     System.out.println("Login: ");
     String loginDigitado = scanner.nextLine();
@@ -15,5 +15,6 @@ public class PainelCadastrado {
     if (usuariologado != null){
         System.out.println("Bem-vindo a nossa paltaforma," + usuariologado.getnome());
        }
+    return usuariologado;
     }
 }
