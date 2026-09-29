@@ -1,4 +1,4 @@
-package InterfaceGrafica;
+
 
 import SISTEMACADASTRO.CategoriaCNH;
 import SISTEMACADASTRO.UsuarioCadastrado;
