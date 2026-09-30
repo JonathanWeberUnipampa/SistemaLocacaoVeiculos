@@ -1,7 +1,7 @@
 package model;
 
 import com.google.gson.annotations.SerializedName;
-import SISTEMACADASTRO.CategoriaCNH;
+import enums.CategoriaCNH;
 
 public class Cliente {
 

@@ -8,7 +8,7 @@ import repository.VeiculoRepository;
 import repository.LocacaoRepository;
 import repository.GerenteRepository;
 //indica, importa os metodos de categoria cnh
-import SISTEMACADASTRO.CategoriaCNH;
+import enums.CategoriaCNH;
 import pagamento.FormaPagamento;
 import java.math.BigDecimal;
 import java.util.List;

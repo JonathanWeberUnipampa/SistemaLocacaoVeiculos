@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import SISTEMACADASTRO.CategoriaCNH;
+import enums.CategoriaCNH;
 
 public class TelaCadastroCliente extends JFrame {
     private final JTextField nome = new JTextField();
