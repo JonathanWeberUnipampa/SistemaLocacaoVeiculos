@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import java.util.List;
 
 public class TelaVeiculos extends JFrame {
     private final DefaultTableModel modelo = new DefaultTableModel(
@@ -24,9 +25,16 @@ public class TelaVeiculos extends JFrame {
         setContentPane(painel); atualizarTabela();
     }
     private void atualizarTabela() {
-        modelo.setRowCount(0); String tipo = (String) filtro.getSelectedItem();
-        for (VeiculoUI veiculo : AppData.veiculos) if ("todos".equals(tipo) || tipo.equals(veiculo.tipo))
-            modelo.addRow(new Object[]{veiculo.placa, veiculo.tipo, veiculo.marca, veiculo.modelo,
-                    veiculo.status, String.format("R$ %.2f", veiculo.valorDiario)});
+        modelo.setRowCount(0);
+        String tipo = "todos".equals(filtro.getSelectedItem()) ? null : (String) filtro.getSelectedItem();
+        try {
+            List<model.Veiculo> veiculos = AppServices.buscarVeiculos(tipo, null);
+            for (model.Veiculo veiculo : veiculos) {
+                modelo.addRow(new Object[]{veiculo.getPlaca(), veiculo.getTipoVeiculo(), veiculo.getMarca(),
+                        veiculo.getModelo(), veiculo.getStatusVeiculo(), veiculo.getValorDiario()});
+            }
+        } catch (RuntimeException erro) {
+            UiSupport.erro(this, "Nao foi possivel consultar os veiculos.", erro);
+        }
     }
 }

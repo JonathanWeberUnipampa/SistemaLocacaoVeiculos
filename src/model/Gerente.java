@@ -1,4 +1,4 @@
-package SISTEMACADASTRO.model;
+package model;
 
 import com.google.gson.annotations.SerializedName;
 

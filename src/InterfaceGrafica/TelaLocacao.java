@@ -1,7 +1,5 @@
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -12,11 +10,13 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class TelaLocacao extends JFrame {
+    private final model.Cliente cliente;
     private final JTextField placa = new JTextField();
-    private final JTextField dataInicio = new JTextField("2026-10-01");
-    private final JTextField dataFim = new JTextField("2026-10-02");
+    private final JTextField dataInicio = new JTextField();
+    private final JTextField dataFim = new JTextField();
     private final JComboBox<String> pagamento = new JComboBox<>(new String[]{"dinheiro", "cartao", "pix"});
-    public TelaLocacao(JFrame anterior) {
+    public TelaLocacao(JFrame anterior, model.Cliente cliente) {
+        this.cliente = cliente;
         setTitle("Nova locacao"); setSize(470, 300); setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(anterior); construirTela();
     }
@@ -31,15 +31,17 @@ public class TelaLocacao extends JFrame {
     }
     private void confirmar() {
         try {
-            VeiculoUI veiculo = AppData.veiculos.stream().filter(item -> item.placa.equalsIgnoreCase(placa.getText().trim()))
-                    .findFirst().orElse(null);
-            if (veiculo == null || !"disponivel".equals(veiculo.status)) { UiSupport.aviso(this, "Veiculo inexistente ou indisponivel."); return; }
-            long dias = ChronoUnit.DAYS.between(LocalDate.parse(dataInicio.getText().trim()), LocalDate.parse(dataFim.getText().trim()));
-            if (dias < 1) { UiSupport.aviso(this, "A data final deve ser posterior a inicial."); return; }
-            double total = dias * veiculo.valorDiario;
-            AppData.locacoes.add(new LocacaoUI(veiculo.placa, dataInicio.getText().trim(), dataFim.getText().trim(),
-                    (String) pagamento.getSelectedItem(), (int) dias, total)); veiculo.status = "indisponivel";
-            JOptionPane.showMessageDialog(this, String.format("Locacao registrada. Total: R$ %.2f", total)); dispose();
-        } catch (RuntimeException erro) { UiSupport.aviso(this, "Use datas no formato AAAA-MM-DD."); }
+            model.Locacao locacao = new model.Locacao();
+            locacao.setClienteId(cliente.getId());
+            locacao.setVeiculoPlaca(placa.getText().trim());
+            locacao.setDataInicio(dataInicio.getText().trim());
+            locacao.setDataFim(dataFim.getText().trim());
+            locacao.setFormaPagamento((String) pagamento.getSelectedItem());
+            AppServices.cadastrarLocacao(locacao);
+            JOptionPane.showMessageDialog(this, "Locacao registrada com sucesso.");
+            dispose();
+        } catch (RuntimeException erro) {
+            UiSupport.erro(this, "Nao foi possivel registrar a locacao.", erro);
+        }
     }
 }

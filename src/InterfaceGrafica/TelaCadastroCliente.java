@@ -37,8 +37,19 @@ public class TelaCadastroCliente extends JFrame {
         if (nome.getText().trim().isEmpty() || cnh.getText().trim().isEmpty() || senha.getPassword().length == 0) {
             UiSupport.aviso(this, "Nome, CNH e senha sao obrigatorios."); return;
         }
-        AppData.clientes.add(new ClienteUI(nome.getText().trim(), telefone.getText().trim(), cnh.getText().trim(),
-                (String) categoria.getSelectedItem(), cep.getText().trim(), new String(senha.getPassword())));
-        javax.swing.JOptionPane.showMessageDialog(this, "Cliente cadastrado com sucesso."); dispose();
+        model.Cliente cliente = new model.Cliente();
+        cliente.setNome(nome.getText().trim());
+        cliente.setTelefone(telefone.getText().trim());
+        cliente.setCnh(cnh.getText().trim());
+        cliente.setCategoriaCnh((String) categoria.getSelectedItem());
+        cliente.setCep(cep.getText().trim());
+        cliente.setSenhaCliente(new String(senha.getPassword()));
+        try {
+            AppServices.cadastrarCliente(cliente);
+            javax.swing.JOptionPane.showMessageDialog(this, "Cliente cadastrado com sucesso.");
+            dispose();
+        } catch (RuntimeException erro) {
+            UiSupport.erro(this, "Nao foi possivel cadastrar o cliente.", erro);
+        }
     }
 }

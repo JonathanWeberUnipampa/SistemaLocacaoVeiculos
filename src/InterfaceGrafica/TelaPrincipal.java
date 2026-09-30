@@ -2,8 +2,6 @@
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -50,15 +48,30 @@ public class TelaPrincipal extends JFrame {
 
     private void entrar() {
         String usuario = campoUsuario.getText().trim();
-        if (usuario.isEmpty() || campoSenha.getPassword().length == 0) {
+        String senha = new String(campoSenha.getPassword());
+        if (usuario.isEmpty() || senha.isEmpty()) {
             UiSupport.aviso(this, "Informe o usuario e a senha.");
             campoUsuario.requestFocusInWindow();
             return;
         }
-        if ("Gerente".equals(comboPerfil.getSelectedItem())) {
-            abrir(new TelaGerente(usuario));
-        } else {
-            abrir(new TelaCliente(usuario));
+        try {
+            if ("Gerente".equals(comboPerfil.getSelectedItem())) {
+                model.Gerente gerente = AppServices.autenticarGerente(usuario, senha);
+                if (gerente == null) {
+                    UiSupport.aviso(this, "Email ou senha invalidos.");
+                    return;
+                }
+                abrir(new TelaGerente(gerente));
+            } else {
+                model.Cliente cliente = AppServices.autenticarCliente(usuario, senha);
+                if (cliente == null) {
+                    UiSupport.aviso(this, "CNH ou senha invalidas.");
+                    return;
+                }
+                abrir(new TelaCliente(cliente));
+            }
+        } catch (RuntimeException erro) {
+            UiSupport.erro(this, "Nao foi possivel acessar o banco de dados.", erro);
         }
     }
 
@@ -69,42 +82,46 @@ class UiSupport {
     static void aviso(JFrame parent, String mensagem) {
         JOptionPane.showMessageDialog(parent, mensagem, "Atencao", JOptionPane.WARNING_MESSAGE);
     }
-}
-
-class AppData {
-    static final List<ClienteUI> clientes = new ArrayList<>();
-    static final List<VeiculoUI> veiculos = new ArrayList<>();
-    static final List<LocacaoUI> locacoes = new ArrayList<>();
-    static {
-        veiculos.add(new VeiculoUI("ABC-1234", "carro", "Fiat", "Argo", "disponivel", 150.0));
-        veiculos.add(new VeiculoUI("XYZ-9876", "moto", "Honda", "CG 160", "disponivel", 85.0));
+    static void erro(JFrame parent, String mensagem, RuntimeException erro) {
+        String detalhe = erro.getMessage() == null ? "Erro desconhecido." : erro.getMessage();
+        JOptionPane.showMessageDialog(parent, mensagem + "\n" + detalhe, "Erro", JOptionPane.ERROR_MESSAGE);
     }
 }
 
-class ClienteUI {
-    String nome, telefone, cnh, categoriaCnh, cep, senha;
-    ClienteUI(String nome, String telefone, String cnh, String categoriaCnh, String cep, String senha) {
-        this.nome = nome; this.telefone = telefone; this.cnh = cnh;
-        this.categoriaCnh = categoriaCnh; this.cep = cep; this.senha = senha;
-    }
-}
+final class AppServices {
+    private static final repository.ClienteRepository CLIENTES = new repository.ClienteRepository();
+    private static final repository.GerenteRepository GERENTES = new repository.GerenteRepository();
+    private static final repository.VeiculoRepository VEICULOS = new repository.VeiculoRepository();
+    private static final repository.LocacaoRepository LOCACOES = new repository.LocacaoRepository();
 
-class VeiculoUI {
-    String placa, tipo, marca, modelo, status;
-    double valorDiario;
-    VeiculoUI(String placa, String tipo, String marca, String modelo, String status, double valorDiario) {
-        this.placa = placa; this.tipo = tipo; this.marca = marca; this.modelo = modelo;
-        this.status = status; this.valorDiario = valorDiario;
-    }
-}
+    private AppServices() { }
 
-class LocacaoUI {
-    String placa, inicio, fim, pagamento;
-    int dias;
-    double total;
-    LocacaoUI(String placa, String inicio, String fim, String pagamento, int dias, double total) {
-        this.placa = placa; this.inicio = inicio; this.fim = fim; this.pagamento = pagamento;
-        this.dias = dias; this.total = total;
+    static model.Cliente autenticarCliente(String cnh, String senha) {
+        return CLIENTES.autenticarCliente(cnh, senha);
+    }
+
+    static model.Gerente autenticarGerente(String email, String senha) {
+        return GERENTES.autenticarGerente(email, senha);
+    }
+
+    static model.Cliente cadastrarCliente(model.Cliente cliente) {
+        return CLIENTES.cadastrarCliente(cliente);
+    }
+
+    static java.util.List<model.Cliente> buscarClientes() {
+        return CLIENTES.buscarClientes(null, null, null, null, null);
+    }
+
+    static java.util.List<model.Veiculo> buscarVeiculos(String tipo, String status) {
+        return VEICULOS.buscarVeiculos(tipo, status, null, null, null);
+    }
+
+    static model.Veiculo cadastrarVeiculo(model.Veiculo veiculo) {
+        return VEICULOS.cadastrarVeiculo(veiculo);
+    }
+
+    static model.Locacao cadastrarLocacao(model.Locacao locacao) {
+        return LOCACOES.cadastrarLocacao(locacao);
     }
 }
 

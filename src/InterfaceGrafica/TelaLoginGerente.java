@@ -19,6 +19,13 @@ public class TelaLoginGerente extends JFrame {
     }
     private void entrar() {
         if (email.getText().trim().isEmpty() || senha.getPassword().length == 0) { UiSupport.aviso(this, "Informe e-mail e senha."); return; }
-        new TelaGerente(email.getText().trim()).setVisible(true); dispose();
+        try {
+            model.Gerente gerente = AppServices.autenticarGerente(email.getText().trim(), new String(senha.getPassword()));
+            if (gerente == null) { UiSupport.aviso(this, "Email ou senha invalidos."); return; }
+            new TelaGerente(gerente).setVisible(true);
+            dispose();
+        } catch (RuntimeException erro) {
+            UiSupport.erro(this, "Nao foi possivel acessar o banco de dados.", erro);
+        }
     }
 }
