@@ -1,5 +1,8 @@
 
 package model;
+
+import exception.LocacaoException;
+
 //importa todos os repositorios do banco de dados
 import repository.ClienteRepository;
 import repository.VeiculoRepository;
@@ -46,17 +49,17 @@ public class Locadora {
     public void cadastrarCliente(UsuarioCadastrado cliente) throws LocacaoException{
         //se o cliente estiver vazio mostra:
         if (cliente == null){
-            throw new model.LocacaoException("Dados do usuário inválidos!");
+            throw new LocacaoException("Dados do usuário inválidos!");
         }
 
         //se o getter getnome for negativo ou estivar vazio mostra:
         if (cliente.getNome() == null || cliente.getNome().isBlank()){
-            throw new model.LocacaoException("Nome inválido! Insira um nome para continuar.");
+            throw new LocacaoException("Nome inválido! Insira um nome para continuar.");
         }
 
         //se a cnh do cliente for negativa ou estiver vazio mostra:
         if (cliente.getCNH() == null || cliente.getCNH().isBlank()){
-            throw new model.LocacaoException("A CNH do cliente é obrigatória!");
+            throw new LocacaoException("A CNH do cliente é obrigatória!");
         }
 
 
@@ -66,14 +69,14 @@ public class Locadora {
             List<UsuarioCadastrado> existentes = clienteRepo.buscarUsuarioCadastrados(null, null, cliente.getCNH(), null, null);
             //verifica se já existe uma CNH com esse número ja registrada, se retornar uma lista com informações mostra o erro:
             if (!existentes.isEmpty()){
-                throw new model.LocacaoException("Já existe um cliente cadastrado com esta CNH.");
+                throw new LocacaoException("Já existe um cliente cadastrado com esta CNH.");
             }
             //cadastra no banco de dados
             clienteRepo.cadastrarUsuarioCadastrado(cliente);
 
             //pega o erro de timeout se ocorrer e mostra a mensagem
         } catch (RuntimeException e) {
-            throw new model.LocacaoException("Timeout erro:  " + e.getMessage());
+            throw new LocacaoException("Timeout erro:  " + e.getMessage());
         }
     }
 
