@@ -1,4 +1,4 @@
-package SISTEMACADASTRO.model;
+package SISTEMACADASTRO;
 
 public enum CategoriaCNH {
     A,
