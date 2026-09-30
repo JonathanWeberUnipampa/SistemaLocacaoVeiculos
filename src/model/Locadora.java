@@ -1,4 +1,3 @@
-
 package model;
 
 import exception.LocacaoException;
@@ -8,11 +7,10 @@ import repository.ClienteRepository;
 import repository.VeiculoRepository;
 import repository.LocacaoRepository;
 import repository.GerenteRepository;
-//indica, importa os metodos de usuariocadastrado e categoria cnh
-import SISTEMACADASTRO.UsuarioCadastrado;
+//indica, importa os metodos de categoria cnh
 import SISTEMACADASTRO.CategoriaCNH;
-import SISTEMACADASTRO.Gerente;
 import pagamento.FormaPagamento;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -20,8 +18,8 @@ import java.util.HashMap;
 
 
 
-//cria uma classe publica chamada locadora, com 3 variáveis privadas repository
-//que são um encapsulamento para a interface não conseguir interagir direot com o banco de dados
+//cria uma classe publica chamada locadora, com variáveis privadas repository
+//que são um encapsulamento para a interface não conseguir interagir direto com o banco de dados
 //sem passar pela validação da locadora pra não ter erros
 public class Locadora {
 
@@ -30,9 +28,9 @@ public class Locadora {
     private LocacaoRepository locacaoRepo = new LocacaoRepository();
     private GerenteRepository gerenteRepo = new GerenteRepository();
 
-    public UsuarioCadastrado autenticarCliente(String cnh, String senha) throws LocacaoException{
+    public Cliente autenticarCliente(String cnh, String senha) throws LocacaoException{
         try{
-            return clienteRepo.autenticarUsuarioCadastrado(cnh, senha);
+            return clienteRepo.autenticarCliente(cnh, senha);
         } catch (RuntimeException e){
             throw new LocacaoException("Erro ao autenticar cliente" + e.getMessage());
         }
@@ -47,19 +45,19 @@ public class Locadora {
 
 
     //cria uma função que não retorna nada e valida se as informações estão corretas, existentes, ou inválidas antes de cadastrar no banco de dados
-    public void cadastrarCliente(UsuarioCadastrado cliente) throws LocacaoException{
+    public void cadastrarCliente(Cliente cliente) throws LocacaoException{
         //se o cliente estiver vazio mostra:
         if (cliente == null){
             throw new LocacaoException("Dados do usuário inválidos!");
         }
 
-        //se o getter getnome for negativo ou estivar vazio mostra:
+        //se o getter getNome for negativo ou estivar vazio mostra:
         if (cliente.getNome() == null || cliente.getNome().isBlank()){
             throw new LocacaoException("Nome inválido! Insira um nome para continuar.");
         }
 
         //se a cnh do cliente for negativa ou estiver vazio mostra:
-        if (cliente.getCNH() == null || cliente.getCNH().isBlank()){
+        if (cliente.getCnh() == null || cliente.getCnh().isBlank()){
             throw new LocacaoException("A CNH do cliente é obrigatória!");
         }
 
@@ -67,13 +65,13 @@ public class Locadora {
         //procura direto no banco de dados comunicando com o supabse, se existe alguma CNH com esse número já existente
         //depois que ela passou por todas as verificações if
         try {
-            List<UsuarioCadastrado> existentes = clienteRepo.buscarUsuarioCadastrados(null, null, cliente.getCNH(), null, null);
+            List<Cliente> existentes = clienteRepo.buscarClientes(null, null, cliente.getCnh(), null, null);
             //verifica se já existe uma CNH com esse número ja registrada, se retornar uma lista com informações mostra o erro:
             if (!existentes.isEmpty()){
                 throw new LocacaoException("Já existe um cliente cadastrado com esta CNH.");
             }
             //cadastra no banco de dados
-            clienteRepo.cadastrarUsuarioCadastrado(cliente);
+            clienteRepo.cadastrarCliente(cliente);
 
             //pega o erro de timeout se ocorrer e mostra a mensagem
         } catch (RuntimeException e) {
@@ -137,24 +135,24 @@ public class Locadora {
         return "disponivel".equalsIgnoreCase(veiculo.getStatusVeiculo());
     }
 
-    //cria uma função chamada realizarLocação que tem como parâmetros o Usuário cliente
+    //cria uma função chamada realizarLocação que tem como parâmetros o cliente
     //o Veículo, e a locação
-    public Locacao realizarLocacao(UsuarioCadastrado cliente, Veiculo veiculo, Locacao locacao, FormaPagamento formaPagamento) throws LocacaoException{
+    public Locacao realizarLocacao(Cliente cliente, Veiculo veiculo, Locacao locacao, FormaPagamento formaPagamento) throws LocacaoException{
         //se estiver tudo negativo dá erro:
-        if (cliente == null || veiculo == null || locacao == null){
+        if (cliente == null || veiculo == null || locacao == null || formaPagamento == null){
             throw new LocacaoException("Dados da locação inválidos, preencha corretamente!");
         }
 
         //verifica se a pessoa pode alugar
         if (!podeAlugar(cliente, veiculo)) {
-            throw new LocacaoException("Cliente com CNH " + cliente.getCategoriaCNH() + " não pode alugar um veículo do tipo " + veiculo.getTipoVeiculo());
+            throw new LocacaoException("Cliente com CNH " + cliente.getCategoriaCnh() + " não pode alugar um veículo do tipo " + veiculo.getTipoVeiculo());
         }
         //verifica se está disponível se a pessoa nao verificou antes
         if (!verificarDisponibilidade(veiculo.getPlaca())) {
             throw new LocacaoException("O veículo de placa " + veiculo.getPlaca() + " não está disponível.");
         }
 
-        String forma = identificarFormaPagamento(formaPagamento);
+        String forma = formaPagamento.getNome();
 
         // realiza o pagamento
         double valorFinal = formaPagamento.realizarPagamento(
@@ -180,19 +178,19 @@ public class Locadora {
         }
     }
 
-    public boolean podeAlugar(UsuarioCadastrado cliente, Veiculo veiculo) {
+    public boolean podeAlugar(Cliente cliente, Veiculo veiculo) {
         if (cliente == null || veiculo == null) return false;
 
-        CategoriaCNH cnh = cliente.getCategoriaCNH();
+        CategoriaCNH cnh = cliente.getCategoriaCnh();
         String tipo = veiculo.getTipoVeiculo();
 
-        if (cnh == CategoriaCNH.AB || "AB".equalsIgnoreCase(String.valueOf(cnh))) {
+        if (cnh == CategoriaCNH.AB) {
             return true;
         }
-        if ((cnh == CategoriaCNH.A || "A".equalsIgnoreCase(String.valueOf(cnh))) && "moto".equalsIgnoreCase(tipo)) {
+        if (cnh == CategoriaCNH.A && "moto".equalsIgnoreCase(tipo)) {
             return true;
         }
-        return (cnh == CategoriaCNH.B || "B".equalsIgnoreCase(String.valueOf(cnh))) && "carro".equalsIgnoreCase(tipo);
+        return cnh == CategoriaCNH.B && "carro".equalsIgnoreCase(tipo);
     }
 
     public List<Veiculo> buscarVeiculos(String tipoVeiculo, String statusVeiculo) throws LocacaoException {
@@ -220,8 +218,3 @@ public class Locadora {
     }
 
 }
-
-
-
-
-
