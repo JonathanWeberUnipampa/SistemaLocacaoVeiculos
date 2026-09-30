@@ -1,4 +1,4 @@
-
+package InterfaceGrafica;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -124,4 +124,3 @@ final class AppServices {
         return LOCACOES.cadastrarLocacao(locacao);
     }
 }
-
