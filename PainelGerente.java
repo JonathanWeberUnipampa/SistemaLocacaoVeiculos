@@ -1,60 +1,87 @@
 package SISTEMACADASTRO;
+
+import SISTEMACADASTRO.model.Gerente;
 import java.util.Scanner;
 
 public class PainelGerente {
-    public static GerenteCadastrado iniciarG() {
+
+    private static final String KEY = "123456";
+
+    public static Gerente iniciarG() {
+
         Scanner scanner = new Scanner(System.in);
+
         System.out.println("Para prosseguir digite a chave de acesso:");
-        String KeyDigitada = scanner.nextLine();
-        boolean permitirAcesso = Gerente.verificarKey(KeyDigitada);
-        GerenteCadastrado gerenteLogado = null;
-        if (permitirAcesso) {
-            int escolhaGerente;
-            do {
-                System.out.println("Bem-vindo a tela de acesso Gerencial");
-                System.out.println("1- Login Gerencial");
-                System.out.println("2- Cadastrar conta Gerencial");
-                System.out.println("3- Sair");
-                escolhaGerente = scanner.nextInt();
-                scanner.nextLine();
-                switch (escolhaGerente) {
-                    case 1:
-                        System.out.println("Login: ");
-                        String loginDigitado = scanner.nextLine();
+        String keyDigitada = scanner.nextLine();
 
-                        System.out.println("Senha: ");
-                        String senhaDigitada = scanner.nextLine();
+        if (!KEY.equals(keyDigitada)) {
+            System.out.println("Chave de acesso incorreta.");
+            return null;
+        }
 
-                        gerenteLogado = GerenteCadastrado.buscarGerente(loginDigitado, senhaDigitada);
-                        if (gerenteLogado != null) {
-                            System.out.println("Login Realizado com sucesso");
-                            System.out.println("Bem-Vindo a nossa plataforma " + gerenteLogado.getnome());
-                        } else {
-                            System.out.println("Falha ao logar dados incompativeis ou conta inexistente");
-                        }
-                        break;
+        Gerente gerenteLogado = null;
+        int escolhaGerente;
 
-                    case 2:
-                        System.out.println("Vamos começar seu cadastro Gerencial:");
-                        System.out.println("Digite seu nome:");
-                        String nome = scanner.nextLine();
-                        System.out.println("Digite seu login:");
-                        String login = scanner.nextLine();
-                        System.out.println("Digite sua senha:");
-                        String senha = scanner.nextLine();
-                        GerenteCadastrado gerente = new GerenteCadastrado(
-                                nome,
-                                login,
-                                senha
-                        );
-                        System.out.println("Cadastro realizado com sucesso");
-                        GerenteCadastrado.adicionarGerente(gerente);
-                        System.out.println("Codigo: " + gerente.getcodigoG());
-                        System.out.println("Nome: " + gerente.getnome());
-                        System.out.println("Login: " + gerente.getLogin());
-                        break;
-                }
-            } while (escolhaGerente != 3);
-        }return gerenteLogado;
+        do {
+            System.out.println("\n--- Bem-vindo à tela de acesso Gerencial ---");
+            System.out.println("1 - Login Gerencial");
+            System.out.println("2 - Cadastrar conta Gerencial");
+            System.out.println("3 - Sair");
+
+            escolhaGerente = scanner.nextInt();
+            scanner.nextLine(); // Consumir a quebra de linha
+
+            switch (escolhaGerente) {
+
+                case 1:
+                    System.out.println("\n--- LOGIN GERENTE ---");
+                    System.out.println("Email:");
+                    String emailDigitado = scanner.nextLine();
+
+                    System.out.println("Senha:");
+                    String senhaDigitada = scanner.nextLine();
+
+                    System.out.println("O login será conectado ao GerenteRepository.");
+                    break;
+
+                case 2:
+                    System.out.println("\n--- CADASTRO GERENTE ---");
+
+                    System.out.println("Digite o seu nome:");
+                    String nome = scanner.nextLine();
+
+                    System.out.println("Digite o seu email:");
+                    String email = scanner.nextLine();
+
+                    System.out.println("Digite a sua senha:");
+                    String senhaGerente = scanner.nextLine();
+
+                    // Criando o objeto com o construtor do modelo
+                    Gerente gerente = new Gerente(
+                            nome,
+                            email,
+                            senhaGerente
+                    );
+
+                    gerenteLogado = gerente; // Guarda a referência do gerente criado
+
+                    System.out.println("Cadastro realizado com sucesso!");
+                    System.out.println("Nome: " + gerente.getNome());
+                    System.out.println("Email: " + gerente.getEmail());
+
+                    break;
+
+                case 3:
+                    System.out.println("A sair do painel gerencial...");
+                    break;
+
+                default:
+                    System.out.println("Opção inválida.");
+                    break;
+            }
+
+        } while (escolhaGerente != 3);
+
+        return gerenteLogado;
     }
 }

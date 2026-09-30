@@ -1,20 +1,23 @@
 package SISTEMACADASTRO;
 
+import SISTEMACADASTRO.model.Cliente;
 import java.util.Scanner;
 
 public class PainelCadastrado {
-    public static UsuarioCadastrado iniciarU(){
-    Scanner scanner = new Scanner (System.in);
-    System.out.println("Login: ");
-    String loginDigitado = scanner.nextLine();
 
-    System.out.println("Senha: ");
-    String senhaDigitada = scanner.nextLine();
+    public static Cliente iniciarU() {
 
-    UsuarioCadastrado usuariologado = UsuarioCadastrado.buscarUsuario(loginDigitado, senhaDigitada);
-    if (usuariologado != null){
-        System.out.println("Bem-vindo a nossa paltaforma," + usuariologado.getnome());
-       }
-    return usuariologado;
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("--- LOGIN DE CLIENTE ---");
+        System.out.println("Digite o seu nome:");
+        String nomeDigitado = scanner.nextLine();
+
+        System.out.println("Senha: ");
+        String senhaDigitada = scanner.nextLine();
+
+        System.out.println("A autenticação do cliente será conectada ao ClienteRepository.");
+
+        return null;
     }
 }
