@@ -2,6 +2,8 @@ package InterfaceGrafica;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -33,15 +35,47 @@ public class TelaLocacao extends JFrame {
     }
     private void confirmar() {
         try {
+            String placaInformada = placa.getText().trim();
+            LocalDate inicio = LocalDate.parse(dataInicio.getText().trim());
+            LocalDate fim = LocalDate.parse(dataFim.getText().trim());
+
+            long dias = ChronoUnit.DAYS.between(inicio, fim);
+            if (dias <= 0) {
+                UiSupport.aviso(this, "A data final deve ser posterior a data inicial.");
+                return;
+            }
+
+            model.Locadora locadora = new model.Locadora();
+            model.Veiculo veiculo = locadora.buscarVeiculo(placaInformada);
+
             model.Locacao locacao = new model.Locacao();
             locacao.setClienteId(cliente.getId());
-            locacao.setVeiculoPlaca(placa.getText().trim());
-            locacao.setDataInicio(dataInicio.getText().trim());
-            locacao.setDataFim(dataFim.getText().trim());
-            locacao.setFormaPagamento((String) pagamento.getSelectedItem());
-            AppServices.cadastrarLocacao(locacao);
-            JOptionPane.showMessageDialog(this, "Locacao registrada com sucesso.");
+            locacao.setVeiculoPlaca(placaInformada);
+            locacao.setDataInicio(inicio.toString());
+            locacao.setDataFim(fim.toString());
+            locacao.setDiasAlugados(Math.toIntExact(dias));
+            locacao.setValorTotal(veiculo.calcularValorLocacao(Math.toIntExact(dias)));
+
+            String formaSelecionada = (String) pagamento.getSelectedItem();
+            pagamento.FormaPagamento formaPagamento;
+            if ("pix".equals(formaSelecionada)) {
+                formaPagamento = new pagamento.PagamentoPix();
+            } else if ("cartao".equals(formaSelecionada)) {
+                formaPagamento = new pagamento.PagamentoCartao();
+            } else {
+                formaPagamento = new pagamento.PagamentoDinheiro();
+            }
+
+            model.Locacao locacaoRealizada = locadora.realizarLocacao(cliente, veiculo, locacao, formaPagamento);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Locacao registrada com sucesso.\nDias alugados: " + locacaoRealizada.getDiasAlugados()
+                            + "\nValor total: R$ " + locacaoRealizada.getValorTotal()
+            );
             dispose();
+        } catch (exception.LocacaoException erro) {
+            UiSupport.aviso(this, erro.getMessage());
         } catch (RuntimeException erro) {
             UiSupport.erro(this, "Nao foi possivel registrar a locacao.", erro);
         }
