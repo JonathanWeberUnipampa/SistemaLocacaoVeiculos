@@ -12,6 +12,7 @@ import repository.GerenteRepository;
 import SISTEMACADASTRO.UsuarioCadastrado;
 import SISTEMACADASTRO.CategoriaCNH;
 import SISTEMACADASTRO.Gerente;
+import pagamento.FormaPagamento;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -138,7 +139,7 @@ public class Locadora {
 
     //cria uma função chamada realizarLocação que tem como parâmetros o Usuário cliente
     //o Veículo, e a locação
-    public Locacao realizarLocacao(UsuarioCadastrado cliente, Veiculo veiculo, Locacao locacao) throws LocacaoException{
+    public Locacao realizarLocacao(UsuarioCadastrado cliente, Veiculo veiculo, Locacao locacao, FormaPagamento formaPagamento) throws LocacaoException{
         //se estiver tudo negativo dá erro:
         if (cliente == null || veiculo == null || locacao == null){
             throw new LocacaoException("Dados da locação inválidos, preencha corretamente!");
@@ -152,6 +153,18 @@ public class Locadora {
         if (!verificarDisponibilidade(veiculo.getPlaca())) {
             throw new LocacaoException("O veículo de placa " + veiculo.getPlaca() + " não está disponível.");
         }
+
+        String forma = identificarFormaPagamento(formaPagamento);
+
+        // realiza o pagamento
+        double valorFinal = formaPagamento.realizarPagamento(
+                locacao.getValorTotal().doubleValue()
+        );
+
+        // atualiza os dados da locação
+        locacao.setFormaPagamento(forma);
+        locacao.setValorTotal(BigDecimal.valueOf(valorFinal));
+
         //Comunica direto para cadastrar no banco de dados a locação, se der erro de Timeout mostra mensagem
         try {
             Locacao locacaoRealizada = locacaoRepo.cadastrarLocacao(locacao);

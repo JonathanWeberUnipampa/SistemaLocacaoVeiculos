@@ -5,4 +5,8 @@ public class PagamentoCartao implements FormaPagamento {
     public double realizarPagamento(double valor) {
         return valor;
     }
+    @Override
+    public String getNome() {
+        return "CARTAO";
+    }
 }
