@@ -30,7 +30,7 @@ public class TelaPrincipal extends JFrame {
         painel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
         painel.add(new JLabel("Acesso ao sistema"));
         painel.add(new JPanel());
-        painel.add(new JLabel("Usuario:"));
+        painel.add(new JLabel("CNH:"));
         painel.add(campoUsuario);
         painel.add(new JLabel("Senha:"));
         painel.add(campoSenha);

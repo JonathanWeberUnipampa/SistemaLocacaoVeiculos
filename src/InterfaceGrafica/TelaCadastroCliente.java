@@ -38,7 +38,8 @@ public class TelaCadastroCliente extends JFrame {
     }
     private void salvar() {
         if (nome.getText().trim().isEmpty() || cnh.getText().trim().isEmpty() || senha.getPassword().length == 0) {
-            UiSupport.aviso(this, "Nome, CNH e senha sao obrigatorios."); return;
+            UiSupport.aviso(this, "Nome, CNH e senha sao obrigatorios.");
+            return;
         }
         model.Cliente cliente = new model.Cliente();
         cliente.setNome(nome.getText().trim());
