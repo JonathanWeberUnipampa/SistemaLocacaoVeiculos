@@ -1,3 +1,5 @@
+package InterfaceGrafica;
+
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
@@ -8,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import SISTEMACADASTRO.CategoriaCNH;
 
 public class TelaCadastroCliente extends JFrame {
     private final JTextField nome = new JTextField();
@@ -41,7 +44,7 @@ public class TelaCadastroCliente extends JFrame {
         cliente.setNome(nome.getText().trim());
         cliente.setTelefone(telefone.getText().trim());
         cliente.setCnh(cnh.getText().trim());
-        cliente.setCategoriaCnh((String) categoria.getSelectedItem());
+        cliente.setCategoriaCnh(CategoriaCNH.valueOf((String) categoria.getSelectedItem()));
         cliente.setCep(cep.getText().trim());
         cliente.setSenhaCliente(new String(senha.getPassword()));
         try {
