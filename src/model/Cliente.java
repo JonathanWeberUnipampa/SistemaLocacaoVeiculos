@@ -1,6 +1,7 @@
 package model;
 
 import com.google.gson.annotations.SerializedName;
+import SISTEMACADASTRO.CategoriaCNH;
 
 public class Cliente {
 
@@ -14,7 +15,7 @@ public class Cliente {
     private String cnh;
 
     @SerializedName("categoria_cnh")
-    private String categoriaCnh;
+    private CategoriaCNH categoriaCnh;
 
     private String cep;
 
@@ -26,7 +27,7 @@ public class Cliente {
     }
 
     // Construtor completo para criar instâncias facilmente
-    public Cliente(String nome, String telefone, String cnh, String categoriaCnh, String cep, String senhaCliente) {
+    public Cliente(String nome, String telefone, String cnh, CategoriaCNH categoriaCnh, String cep, String senhaCliente) {
         this.nome = nome;
         this.telefone = telefone;
         this.cnh = cnh;
@@ -75,11 +76,11 @@ public class Cliente {
         this.cnh = cnh;
     }
 
-    public String getCategoriaCnh() {
+    public CategoriaCNH getCategoriaCnh() {
         return categoriaCnh;
     }
 
-    public void setCategoriaCnh(String categoriaCnh) {
+    public void setCategoriaCnh(CategoriaCNH categoriaCnh) {
         this.categoriaCnh = categoriaCnh;
     }
 
