@@ -120,6 +120,10 @@ final class AppServices {
         return VEICULOS.cadastrarVeiculo(veiculo);
     }
 
+    static model.Veiculo editarVeiculo(long id, java.util.Map<String, Object> dadosAtualizados) {
+        return VEICULOS.editarVeiculo(id, dadosAtualizados);
+    }
+
     static model.Locacao cadastrarLocacao(model.Locacao locacao) {
         return LOCACOES.cadastrarLocacao(locacao);
     }
