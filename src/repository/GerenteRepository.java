@@ -14,37 +14,37 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
+// Acessa os dados de Gerente pela API do Supabase.
 public class GerenteRepository {
 
+    // Endereço do projeto e chave usados nas requisições.
     private static final String SUPABASE_URL =
             SupabaseConfig.URL;
 
     private static final String SUPABASE_KEY =
             SupabaseConfig.ANON_KEY;
 
+    // Endereço da API para esta tabela.
     private static final String BASE_URL =
             SUPABASE_URL + "/rest/v1/gerente";
 
+    // Envia as requisições HTTP.
     private final HttpClient client =
             HttpClient.newHttpClient();
 
+    // Converte objetos Java em JSON e JSON em objetos Java.
     private final Gson gson =
             new Gson();
 
+    // Busca gerentes pelo e-mail; sem e-mail, consulta sem filtros.
     public List<Gerente> buscarGerentes(
-            String nome,
             String email
     ) {
 
+        // select=* pede todas as colunas; os if adicionam filtros de igualdade.
         StringBuilder url =
                 new StringBuilder(BASE_URL + "?select=*");
-
-        if (nome != null && !nome.isBlank()) {
-            url.append("&nome=eq.")
-                    .append(encode(nome));
-        }
 
         if (email != null && !email.isBlank()) {
             url.append("&email=eq.")
@@ -54,6 +54,7 @@ public class GerenteRepository {
         return fazerGet(url.toString());
     }
 
+    // Busca pelo e-mail e confere a senha; retorna null se não autenticar.
     public Gerente autenticarGerente(
             String email,
             String senha
@@ -61,7 +62,6 @@ public class GerenteRepository {
 
         List<Gerente> gerentes =
                 buscarGerentes(
-                        null,
                         email
                 );
 
@@ -80,93 +80,7 @@ public class GerenteRepository {
         return null;
     }
 
-    public Gerente cadastrarGerente(
-            Gerente novoGerente
-    ) {
-
-        try {
-            String json =
-                    gson.toJson(novoGerente);
-
-            HttpRequest request =
-                    HttpRequest.newBuilder()
-                            .uri(URI.create(BASE_URL))
-                            .header("apikey", SUPABASE_KEY)
-                            .header("Authorization", "Bearer " + SUPABASE_KEY)
-                            .header("Content-Type", "application/json")
-                            .header("Prefer", "return=representation")
-                            .POST(HttpRequest.BodyPublishers.ofString(json))
-                            .build();
-
-            HttpResponse<String> response =
-                    client.send(
-                            request,
-                            HttpResponse.BodyHandlers.ofString()
-                    );
-
-            Gerente[] gerentes =
-                    gson.fromJson(
-                            response.body(),
-                            Gerente[].class
-                    );
-
-            return gerentes[0];
-
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Erro ao cadastrar gerente: "
-                            + e.getMessage()
-            );
-        }
-    }
-
-    public Gerente editarGerente(
-            long id,
-            Map<String, Object> dadosAtualizados
-    ) {
-
-        try {
-            String url =
-                    BASE_URL + "?id=eq." + id;
-
-            String json =
-                    gson.toJson(dadosAtualizados);
-
-            HttpRequest request =
-                    HttpRequest.newBuilder()
-                            .uri(URI.create(url))
-                            .header("apikey", SUPABASE_KEY)
-                            .header("Authorization", "Bearer " + SUPABASE_KEY)
-                            .header("Content-Type", "application/json")
-                            .header("Prefer", "return=representation")
-                            .method(
-                                    "PATCH",
-                                    HttpRequest.BodyPublishers.ofString(json)
-                            )
-                            .build();
-
-            HttpResponse<String> response =
-                    client.send(
-                            request,
-                            HttpResponse.BodyHandlers.ofString()
-                    );
-
-            Gerente[] gerentes =
-                    gson.fromJson(
-                            response.body(),
-                            Gerente[].class
-                    );
-
-            return gerentes[0];
-
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Erro ao editar gerente: "
-                            + e.getMessage()
-            );
-        }
-    }
-
+    // Executa a consulta GET e converte a resposta em uma lista.
     private List<Gerente> fazerGet(
             String url
     ) {
@@ -180,16 +94,19 @@ public class GerenteRepository {
                             .GET()
                             .build();
 
+            // Envia a requisição e recebe o conteúdo da resposta como texto.
             HttpResponse<String> response =
                     client.send(
                             request,
                             HttpResponse.BodyHandlers.ofString()
                     );
 
+            // Informa ao Gson o tipo dos objetos contidos na lista.
             Type tipoLista =
                     new TypeToken<List<Gerente>>() {
                     }.getType();
 
+            // Transforma o JSON recebido em objetos Java.
             return gson.fromJson(
                     response.body(),
                     tipoLista
@@ -203,6 +120,7 @@ public class GerenteRepository {
         }
     }
 
+    // Codifica espaços e caracteres especiais para uso nos filtros da URL.
     private String encode(
             String valor
     ) {
