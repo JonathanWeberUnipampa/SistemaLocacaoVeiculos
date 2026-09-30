@@ -1,5 +1,6 @@
 package repository;
 
+import config.SupabaseConfig;
 import model.Veiculo;
 
 import com.google.gson.Gson;
@@ -18,10 +19,10 @@ import java.util.Map;
 public class VeiculoRepository {
 
     private static final String SUPABASE_URL =
-            "https://dicvxojuilstdgszzqbi.supabase.co";
+            SupabaseConfig.URL;
 
     private static final String SUPABASE_KEY =
-            System.getenv("SUPABASE_KEY");
+            SupabaseConfig.ANON_KEY;
 
     private static final String BASE_URL =
             SUPABASE_URL + "/rest/v1/veiculo";
@@ -29,11 +30,6 @@ public class VeiculoRepository {
     private final HttpClient client = HttpClient.newHttpClient();
 
     private final Gson gson = new Gson();
-
-
-    // =========================================================
-    // GET
-    // =========================================================
 
     public List<Veiculo> buscarVeiculos(
             String tipoVeiculo,
@@ -74,16 +70,9 @@ public class VeiculoRepository {
         return fazerGet(url.toString());
     }
 
-
-    // =========================================================
-    // POST
-    // =========================================================
-
     public Veiculo cadastrarVeiculo(Veiculo novoVeiculo) {
 
         try {
-
-            // JAVA -> JSON
             String json = gson.toJson(novoVeiculo);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -101,7 +90,6 @@ public class VeiculoRepository {
                             HttpResponse.BodyHandlers.ofString()
                     );
 
-            // JSON -> JAVA
             Veiculo[] veiculos =
                     gson.fromJson(response.body(), Veiculo[].class);
 
@@ -114,21 +102,14 @@ public class VeiculoRepository {
         }
     }
 
-
-    // =========================================================
-    // PATCH
-    // =========================================================
-
     public Veiculo editarVeiculo(
             long id,
             Map<String, Object> dadosAtualizados
     ) {
 
         try {
-
             String url = BASE_URL + "?id=eq." + id;
 
-            // JAVA -> JSON
             String json = gson.toJson(dadosAtualizados);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -149,7 +130,6 @@ public class VeiculoRepository {
                             HttpResponse.BodyHandlers.ofString()
                     );
 
-            // JSON -> JAVA
             Veiculo[] veiculos =
                     gson.fromJson(response.body(), Veiculo[].class);
 
@@ -162,15 +142,9 @@ public class VeiculoRepository {
         }
     }
 
-
-    // =========================================================
-    // GET INTERNO
-    // =========================================================
-
     private List<Veiculo> fazerGet(String url) {
 
         try {
-
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("apikey", SUPABASE_KEY)
@@ -187,7 +161,6 @@ public class VeiculoRepository {
             Type tipoLista =
                     new TypeToken<List<Veiculo>>() {}.getType();
 
-            // JSON -> JAVA
             return gson.fromJson(
                     response.body(),
                     tipoLista
@@ -200,13 +173,7 @@ public class VeiculoRepository {
         }
     }
 
-
-    // =========================================================
-    // AUXILIAR DOS FILTROS
-    // =========================================================
-
     private String encode(String valor) {
-
         return URLEncoder.encode(
                 valor,
                 StandardCharsets.UTF_8
