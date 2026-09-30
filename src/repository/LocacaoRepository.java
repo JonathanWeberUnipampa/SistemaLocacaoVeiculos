@@ -1,5 +1,6 @@
 package repository;
 
+import config.SupabaseConfig;
 import model.Locacao;
 
 import com.google.gson.Gson;
@@ -18,10 +19,10 @@ import java.util.Map;
 public class LocacaoRepository {
 
     private static final String SUPABASE_URL =
-            "https://dicvxojuilstdgszzqbi.supabase.co";
+            SupabaseConfig.URL;
 
     private static final String SUPABASE_KEY =
-            System.getenv("SUPABASE_KEY");
+            SupabaseConfig.ANON_KEY;
 
     private static final String BASE_URL =
             SUPABASE_URL + "/rest/v1/locacao";
@@ -29,11 +30,6 @@ public class LocacaoRepository {
     private final HttpClient client = HttpClient.newHttpClient();
 
     private final Gson gson = new Gson();
-
-
-    // =========================================================
-    // GET
-    // =========================================================
 
     public List<Locacao> buscarLocacoes(
             Long clienteId,
@@ -46,55 +42,37 @@ public class LocacaoRepository {
         StringBuilder url =
                 new StringBuilder(BASE_URL + "?select=*");
 
-
-        // FILTRO POR CLIENTE
         if (clienteId != null) {
             url.append("&cliente_id=eq.")
                     .append(clienteId);
         }
 
-
-        // FILTRO POR DATA DE INÍCIO
         if (dataInicio != null && !dataInicio.isBlank()) {
             url.append("&data_inicio=eq.")
                     .append(encode(dataInicio));
         }
 
-
-        // FILTRO POR DATA DE FIM
         if (dataFim != null && !dataFim.isBlank()) {
             url.append("&data_fim=eq.")
                     .append(encode(dataFim));
         }
 
-
-        // FILTRO POR FORMA DE PAGAMENTO
         if (formaPagamento != null && !formaPagamento.isBlank()) {
             url.append("&forma_pagamento=eq.")
                     .append(encode(formaPagamento));
         }
 
-
-        // FILTRO POR PLACA DO VEÍCULO
         if (veiculoPlaca != null && !veiculoPlaca.isBlank()) {
             url.append("&veiculo_placa=eq.")
                     .append(encode(veiculoPlaca));
         }
 
-
         return fazerGet(url.toString());
     }
-
-
-    // =========================================================
-    // POST
-    // =========================================================
 
     public Locacao cadastrarLocacao(Locacao novaLocacao) {
 
         try {
-
-            // JAVA -> JSON
             String json = gson.toJson(novaLocacao);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -103,9 +81,7 @@ public class LocacaoRepository {
                     .header("Authorization", "Bearer " + SUPABASE_KEY)
                     .header("Content-Type", "application/json")
                     .header("Prefer", "return=representation")
-                    .POST(
-                            HttpRequest.BodyPublishers.ofString(json)
-                    )
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
             HttpResponse<String> response =
@@ -114,7 +90,6 @@ public class LocacaoRepository {
                             HttpResponse.BodyHandlers.ofString()
                     );
 
-            // JSON -> JAVA
             Locacao[] locacoes =
                     gson.fromJson(
                             response.body(),
@@ -124,7 +99,6 @@ public class LocacaoRepository {
             return locacoes[0];
 
         } catch (Exception e) {
-
             throw new RuntimeException(
                     "Erro ao cadastrar locação: "
                             + e.getMessage()
@@ -132,22 +106,15 @@ public class LocacaoRepository {
         }
     }
 
-
-    // =========================================================
-    // PATCH
-    // =========================================================
-
     public Locacao editarLocacao(
             long id,
             Map<String, Object> dadosAtualizados
     ) {
 
         try {
-
             String url =
                     BASE_URL + "?id=eq." + id;
 
-            // JAVA -> JSON
             String json =
                     gson.toJson(dadosAtualizados);
 
@@ -169,7 +136,6 @@ public class LocacaoRepository {
                             HttpResponse.BodyHandlers.ofString()
                     );
 
-            // JSON -> JAVA
             Locacao[] locacoes =
                     gson.fromJson(
                             response.body(),
@@ -179,7 +145,6 @@ public class LocacaoRepository {
             return locacoes[0];
 
         } catch (Exception e) {
-
             throw new RuntimeException(
                     "Erro ao editar locação: "
                             + e.getMessage()
@@ -187,15 +152,9 @@ public class LocacaoRepository {
         }
     }
 
-
-    // =========================================================
-    // MÉTODO INTERNO DO GET
-    // =========================================================
-
     private List<Locacao> fazerGet(String url) {
 
         try {
-
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("apikey", SUPABASE_KEY)
@@ -213,14 +172,12 @@ public class LocacaoRepository {
                     new TypeToken<List<Locacao>>() {}
                             .getType();
 
-            // JSON -> JAVA
             return gson.fromJson(
                     response.body(),
                     tipoLista
             );
 
         } catch (Exception e) {
-
             throw new RuntimeException(
                     "Erro ao buscar locações: "
                             + e.getMessage()
@@ -228,13 +185,7 @@ public class LocacaoRepository {
         }
     }
 
-
-    // =========================================================
-    // AUXILIAR DOS FILTROS
-    // =========================================================
-
     private String encode(String valor) {
-
         return URLEncoder.encode(
                 valor,
                 StandardCharsets.UTF_8
